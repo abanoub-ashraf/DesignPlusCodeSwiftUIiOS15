@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct ContentView: View {
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
             Spacer()
@@ -33,10 +34,13 @@ struct ContentView: View {
         }
         .padding(.all, 20)
         .frame(height: 350)
-        .background(/*@START_MENU_TOKEN@*//*@PLACEHOLDER=View@*/Color("Background")/*@END_MENU_TOKEN@*/)
+        .background(
+            Color.init(uiColor: UIColor(named: "Background")!)
+        )
         .cornerRadius(30)
         .shadow(radius: 20)
     }
+    
 }
 
 struct ContentView_Previews: PreviewProvider {
