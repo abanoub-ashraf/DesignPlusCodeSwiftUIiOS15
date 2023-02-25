@@ -116,8 +116,13 @@ struct TabBarView: View {
         /// the small line on top of the tab bar item
         ///
         HStack {
-            if selectedTab == .library { Spacer() }
-            if selectedTab == .explore { Spacer() }
+            if selectedTab == .library {
+                Spacer()
+            }
+            
+            if selectedTab == .explore {
+                Spacer()
+            }
             
             if selectedTab == .notifications {
                 Spacer()
@@ -131,44 +136,55 @@ struct TabBarView: View {
                 .frame(width: tabItemWidth)
                 .frame(maxHeight: .infinity, alignment: .top)
             
-            if selectedTab == .home { Spacer() }
+            if selectedTab == .home {
+                Spacer()
+            }
             
             if selectedTab == .explore {
                 Spacer()
                 Spacer()
             }
             
-            if selectedTab == .notifications { Spacer() }
+            if selectedTab == .notifications {
+                Spacer()
+            }
         }
         .padding(.horizontal, 8)
-
     }
     
     var body: some View {
-        ///
-        /// this is a custom tab bar instead of using the tabview
-        ///
-        HStack {
-            buttons
+        GeometryReader { proxy in
+            ///
+            /// - if this is true then the current device has a home indicator in the bottom
+            /// - bottom is for the home indicator and top is for the notch
+            ///
+            let hasHomeIndicator = proxy.safeAreaInsets.bottom > 20
+            
+            ///
+            /// this is a custom tab bar instead of using the tabview
+            ///
+            HStack {
+                buttons
+            }
+            .padding(.horizontal, 8)
+            .padding(.top, 14)
+            .frame(height: hasHomeIndicator ? 88 : 62, alignment: .top)
+            .background(
+                .ultraThinMaterial,
+                in: RoundedRectangle(cornerRadius: hasHomeIndicator ? 34 : 0, style: .continuous)
+            )
+            .background(background)
+            .overlay(overlay)
+            .strokeStyle(cornerRadius: hasHomeIndicator ? 34 : 0)
+            ///
+            /// alignment bottom cause it's the tabbar it has to be at the bottom
+            ///
+            .frame(maxHeight: .infinity, alignment: .bottom)
+            ///
+            /// for this to work, the hstack has to take the full height of the screen
+            ///
+            .ignoresSafeArea()
         }
-        .padding(.horizontal, 8)
-        .padding(.top, 14)
-        .frame(height: 88, alignment: .top)
-        .background(
-            .ultraThinMaterial,
-            in: RoundedRectangle(cornerRadius: 34, style: .continuous)
-        )
-        .background(background)
-        .overlay(overlay)
-        .strokeStyle(cornerRadius: 34)
-        ///
-        /// alignment bottom cause it's the tabbar it has to be at the bottom
-        ///
-        .frame(maxHeight: .infinity, alignment: .bottom)
-        ///
-        /// for this to work, the hstack has to take the full height of the screen
-        ///
-        .ignoresSafeArea()
     }
 }
 

@@ -18,6 +18,15 @@ struct HomeView: View {
     ///
     @State var show = false
     @State var showStatusBar = true
+    ///
+    /// to set thi to be the id of each course that's being clicked
+    ///
+    @State var selectedID = UUID()
+    ///
+    /// this gives access to everything inside this model
+    /// after we set this model to the parent view in the main file
+    ///
+    @EnvironmentObject var model: Model
     
     var scrollDetection: some View {
         ///
@@ -55,11 +64,13 @@ struct HomeView: View {
         /// this is how to make horizontal scroll list of items
         ///
         TabView {
-            ForEach(courses) { course in
+            ForEach(featuredCourses) { course in
                 GeometryReader { proxy in
                     let minX = proxy.frame(in: .global).minX
                     
                     FeaturedItemView(course: course)
+                        .frame(maxWidth: 500)
+                        .frame(maxWidth: .infinity)
                         ///
                         /// this padding is because geometry reader takes the minimum size and it clips stuff like shadows
                         ///
@@ -98,6 +109,52 @@ struct HomeView: View {
         )
     }
     
+    var cards: some View {
+        ForEach(courses) { course in
+            ///
+            /// namespace conects between two state of animation, this is the start state
+            /// and CourseView() down there is the end state
+            ///
+            CourseItemView(namespace: namespace, show: $show, course: course)
+                .onTapGesture {
+                    withAnimation(.openCard) {
+                        show.toggle()
+                        ///
+                        /// to sync the state with the env object showDetail
+                        ///
+                        model.showDetail.toggle()
+                        showStatusBar = false
+                        ///
+                        /// set the selected course when it's clicked
+                        ///
+                        selectedID = course.id
+                    }
+                }
+        }
+    }
+    
+    var detail: some View {
+        ForEach(courses) { course in
+            ///
+            /// this is because foreach shows all the courses at the same time and
+            /// we want to only show the course that's been selected
+            ///
+            if course.id == selectedID {
+                CourseView(show: $show, namespace: namespace, course: course)
+                    ///
+                    /// optimize the animation so the views don't disappear and show right away
+                    ///
+                    .zIndex(1)
+                    .transition(
+                        .asymmetric(
+                            insertion: .opacity.animation(.easeInOut(duration: 0.1)),
+                            removal: .opacity.animation(.easeInOut(duration: 0.3).delay(0.2))
+                        )
+                    )
+            }
+        }
+    }
+    
     var body: some View {
         ZStack {
             Color("Background")
@@ -114,19 +171,37 @@ struct HomeView: View {
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.horizontal, 20)
                 
-                if !show {
+                ///
+                /// lazy means this only load its content as needed
+                ///
+                LazyVGrid(
                     ///
-                    /// namespace conects between two state of animation, this is the start state
-                    /// and CourseView() down there is the end state
+                    /// spacing inside the GridItem is for the space between the rows
                     ///
-                    CourseItemView(namespace: namespace, show: $show)
-                        .onTapGesture {
-                            withAnimation(.openCard) {
-                                show.toggle()
-                                showStatusBar = false
-                            }
+                    columns: [GridItem(.adaptive(minimum: 300), spacing: 20)],
+                    ///
+                    /// spacing is for the space between each row
+                    ///
+                    spacing: 20
+                ) {
+                    if !show {
+                        cards
+                    } else {
+                        ///
+                        /// to keep each card on its place whenever we close the card after it's opened
+                        ///
+                        ForEach(courses) { course in
+                            Rectangle()
+                                .fill(.white)
+                                .frame(height: 300)
+                                .cornerRadius(30)
+                                .shadow(color: Color("Shadow"), radius: 20, x: 0, y: 10)
+                                .opacity(0.3)
+                                .padding(.horizontal, 30)
                         }
+                    }
                 }
+                .padding(.horizontal, 20)
             }
             ///
             /// to get the space from the beginning of the screen till this point of the scroll view
@@ -146,7 +221,7 @@ struct HomeView: View {
             }
             
             if show {
-                CourseView(namespace: namespace, show: $show)
+                detail
             }
         }
         .statusBarHidden(!showStatusBar)
@@ -170,5 +245,6 @@ struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
         HomeView()
             .preferredColorScheme(.dark)
+            .environmentObject(Model())
     }
 }
