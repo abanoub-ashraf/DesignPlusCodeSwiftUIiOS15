@@ -13,6 +13,10 @@ struct AccountView: View {
     ///
     @State var isDeleted: Bool = false
     @State var isPinned: Bool = false
+    ///
+    /// sane thing we did in the search view
+    ///
+    @Environment(\.presentationMode) var presentationMode
     
     var profile: some View {
         VStack(spacing: 8) {
@@ -90,9 +94,7 @@ struct AccountView: View {
         }
         ///
         /// - the navigation link change the color of the entire ui element so this tint gives it the color we want
-        ///
         /// - we can put this modifier under each navigation link but putting it here will be applied on all the navigation likks
-        ///
         /// - in swiftui the stype for the parent will be inherited by the child as well
         ///
         .accentColor(.primary)
@@ -185,6 +187,13 @@ struct AccountView: View {
             }
             .listStyle(.insetGrouped)
             .navigationTitle("Account")
+            .navigationBarItems(
+                trailing: Button(action: {
+                    presentationMode.wrappedValue.dismiss()
+                }, label: {
+                    Text("Done").bold()
+                })
+            )
         }
     }
 }

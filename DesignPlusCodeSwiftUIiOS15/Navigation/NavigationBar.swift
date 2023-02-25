@@ -11,6 +11,14 @@ struct NavigationBar: View {
     var title = ""
     
     ///
+    /// use this state to show the search view in a sheet
+    ///
+    @State var showSearch = false
+    ///
+    /// use this to go to the account view
+    ///
+    @State var showAccount = false
+    ///
     /// bind the state it was set frome home view to here
     ///
     @Binding var hasScrolled: Bool
@@ -42,26 +50,46 @@ struct NavigationBar: View {
                 .offset(y: hasScrolled ? -4 : 0)
             
             HStack(spacing: 16) {
-                Image(systemName: "magnifyingglass")
-                    .font(.body.weight(.bold))
-                    .frame(width: 36, height: 36)
-                    .foregroundColor(.secondary)
-                    .background(
-                        .ultraThinMaterial,
-                        in: RoundedRectangle(cornerRadius: 14, style: .continuous)
-                    )
-                    .strokeStyle(cornerRadius: 14)
+                Button {
+                    showSearch = true
+                } label: {
+                    Image(systemName: "magnifyingglass")
+                        .font(.body.weight(.bold))
+                        .frame(width: 36, height: 36)
+                        .foregroundColor(.secondary)
+                        .background(
+                            .ultraThinMaterial,
+                            in: RoundedRectangle(cornerRadius: 14, style: .continuous)
+                        )
+                        .strokeStyle(cornerRadius: 14)
+                }
+                ///
+                /// when this state variable changes, we will present the search view in a sheet
+                ///
+                .sheet(isPresented: $showSearch) {
+                    SearchView()
+                }
                 
-                Image("Avatar Default")
-                    .resizable()
-                    .frame(width: 26, height: 26)
-                    .cornerRadius(10)
-                    .padding(8)
-                    .background(
-                        .ultraThinMaterial,
-                        in: RoundedRectangle(cornerRadius: 18, style: .continuous)
-                    )
-                    .strokeStyle(cornerRadius: 18)
+                Button {
+                    showAccount = true
+                } label: {
+                    Image("Avatar Default")
+                        .resizable()
+                        .frame(width: 26, height: 26)
+                        .cornerRadius(10)
+                        .padding(8)
+                        .background(
+                            .ultraThinMaterial,
+                            in: RoundedRectangle(cornerRadius: 18, style: .continuous)
+                        )
+                        .strokeStyle(cornerRadius: 18)
+                }
+                ///
+                /// when this state variable changes, we will show the account view in a sheet
+                ///
+                .sheet(isPresented: $showAccount) {
+                    AccountView()
+                }
             }
             .frame(maxWidth: .infinity, alignment: .trailing)
             .padding(.trailing, 20)
