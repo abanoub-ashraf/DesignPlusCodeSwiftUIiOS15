@@ -82,7 +82,11 @@ struct CourseView: View {
     
     var cover: some View {
         GeometryReader { proxy in
-            let scrollY = proxy.frame(in: .global).minY
+            ///
+            /// we didn't use .global here because when this view is in a sheet, there's some blur that happens
+            /// and we don't want that
+            ///
+            let scrollY = proxy.frame(in: .named("scroll")).minY
             
             VStack {
                 Spacer()
@@ -281,6 +285,16 @@ struct CourseView: View {
                     .offset(y: 120)
                     .padding(.bottom, 200)
                     .opacity(appear[2] ? 1 : 0)
+            }
+            .coordinateSpace(name: "scroll")
+            ///
+            /// these 2 modifiers is because when this view show up it toggles shoing the tab bar  and we don't want that
+            ///
+            .onAppear {
+                model.showDetail = true
+            }
+            .onDisappear {
+                model.showDetail = false
             }
             .background(Color("Background"))
             ///

@@ -10,10 +10,6 @@ import SwiftUI
 struct HomeView: View {
     @State var hasScrolled = false
     ///
-    /// this is used for connecting two state of animation the start and the end
-    ///
-    @Namespace var namespace
-    ///
     /// state variable for animation
     ///
     @State var show = false
@@ -22,6 +18,12 @@ struct HomeView: View {
     /// to set thi to be the id of each course that's being clicked
     ///
     @State var selectedID = UUID()
+    @State var showCourse = false
+    @State var selectedIndex = 0
+    ///
+    /// this is used for connecting two state of animation the start and the end
+    ///
+    @Namespace var namespace
     ///
     /// this gives access to everything inside this model
     /// after we set this model to the parent view in the main file
@@ -64,7 +66,7 @@ struct HomeView: View {
         /// this is how to make horizontal scroll list of items
         ///
         TabView {
-            ForEach(featuredCourses) { course in
+            ForEach(Array(featuredCourses.enumerated()), id: \.offset) { index, course in
                 GeometryReader { proxy in
                     let minX = proxy.frame(in: .global).minX
                     
@@ -93,6 +95,10 @@ struct HomeView: View {
                                 .offset(x: 32, y: -80)
                                 .offset(x: minX / 2)
                         }
+                        .onTapGesture {
+                            showCourse = true
+                            selectedIndex = index
+                        }
                 }
             }
         }
@@ -107,6 +113,9 @@ struct HomeView: View {
             Image("Blob 1")
                 .offset(x: 250, y: -100)
         )
+        .sheet(isPresented: $showCourse) {
+            CourseView(show: $showCourse, namespace: namespace, course: featuredCourses[selectedIndex])
+        }
     }
     
     var cards: some View {
